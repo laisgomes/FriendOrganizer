@@ -5,7 +5,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Autofac;
 using FriendOrganizer.UI.Data;
+using FriendOrganizer.UI.Startup;
 using FriendOrganizer.UI.ViewModel;
 
 namespace FriendOrganizer.UI
@@ -17,8 +19,9 @@ namespace FriendOrganizer.UI
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var mainWindow = new MainWindow(
-                new MainViewModel(new FriendDataService()));
+            var bootstrapper = new Bootstrapper();
+            var container = bootstrapper.Bootstrap();
+            var mainWindow = container.Resolve<MainWindow>();
             mainWindow.Show();
         }
     }

@@ -7,6 +7,7 @@ using System.Windows.Input;
 using FriendOrganizer.Model;
 using FriendOrganizer.UI.Data;
 using FriendOrganizer.UI.Event;
+using FriendOrganizer.UI.Wapper;
 using Prism.Commands;
 using Prism.Events;
 
@@ -15,23 +16,11 @@ namespace FriendOrganizer.UI.ViewModel
     internal class FriendDetailViewModel : ViewModelBase, IFriendDetailViewModel
     {
         private IFriendDataService _dataService;
-        private Friend _friend;
+        private FriendWapper _friend;
         private IEventAggregator _eventAggregator;
 
-
-        public Friend Friend
-        {
-            get => _friend;
-            private set
-            {
-                _friend = value;
-                OnPropertyChanged();
-            }
-
-        }
-
-        public ICommand SaveCommand { get; }
-        public FriendDetailViewModel(IFriendDataService dataService, IEventAggregator eventAggregator)
+        public FriendDetailViewModel(IFriendDataService dataService, 
+            IEventAggregator eventAggregator)
         {
             _dataService = dataService;
             _eventAggregator = eventAggregator;
@@ -40,14 +29,40 @@ namespace FriendOrganizer.UI.ViewModel
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
-        private void OnSaveExecute()
+        public FriendWapper Friend
         {
-            throw new NotImplementedException();
+            get { return _friend; }
+            private set
+            {
+                _friend = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task LoadAsync(int friendId)
+        {
+            var friend = await _dataService.GetByIdAsync(friendId);
+            Friend = new FriendWapper(friend);
+
+        }
+
+        public ICommand SaveCommand { get; }
+
+        private async void OnSaveExecute()
+        {
+            await _dataService.SaveAsync(Friend.Model);
+            _eventAggregator.GetEvent<AfterFriendEvent>().Publish(
+                new AfterFriendSaveEventArgs
+                {
+                    Id = Friend.Id,
+                    DisplayMember = $"{Friend.FirstName}{Friend.LastName}"
+                });
+                
         }
 
         private bool OnSaveCanExecute()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         private async void OnOpenFriendDetailView(int friendId)
@@ -55,10 +70,7 @@ namespace FriendOrganizer.UI.ViewModel
             await LoadAsync(friendId);
         }
 
-        public async Task LoadAsync(int friendId)
-        {
-            Friend = await _dataService.GetByIdAsync(friendId);
-        }
+       
 
 
     }

@@ -86,6 +86,8 @@
       <DependentUpon>NavigationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wapper\FriendWapper.cs" />
+    <Compile Include="Wapper\ModelWapper.cs" />
+    <Compile Include="Wapper\NotifyDataErrorInfoBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

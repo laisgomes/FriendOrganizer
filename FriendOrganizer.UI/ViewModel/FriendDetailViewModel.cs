@@ -42,7 +42,18 @@ namespace FriendOrganizer.UI.ViewModel
         public async Task LoadAsync(int friendId)
         {
             var friend = await _dataService.GetByIdAsync(friendId);
+
             Friend = new FriendWapper(friend);
+            Friend.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName==nameof(Friend.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+
+                }
+            };
+
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
 
         }
 
@@ -62,9 +73,9 @@ namespace FriendOrganizer.UI.ViewModel
 
         private bool OnSaveCanExecute()
         {
-            return true;
+            return Friend != null && !Friend.HasErrors;
         }
-
+         
         private async void OnOpenFriendDetailView(int friendId)
         {
             await LoadAsync(friendId);

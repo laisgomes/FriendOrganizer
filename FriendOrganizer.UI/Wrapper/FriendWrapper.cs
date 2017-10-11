@@ -2,11 +2,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace FriendOrganizer.UI.Wapper
+namespace FriendOrganizer.UI.Wrapper
 {
-    public class FriendWapper : ModelWapper<Friend>
+    public class FriendWrapper : ModelWrapper<Friend>
     {
-        public FriendWapper(Friend model) : base(model)
+        public FriendWrapper(Friend model) : base(model)
         {
         }
 

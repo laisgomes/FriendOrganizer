@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using FriendOrganizer.Model;
-using FriendOrganizer.UI.Data;
+﻿using FriendOrganizer.UI.Data.Repositories;
 using FriendOrganizer.UI.Event;
-using FriendOrganizer.UI.Wapper;
+using FriendOrganizer.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace FriendOrganizer.UI.ViewModel
 {
     internal class FriendDetailViewModel : ViewModelBase, IFriendDetailViewModel
     {
-        private IFriendDataService _dataService;
-        private FriendWapper _friend;
+        private IFriendRepository _repository;
+        private FriendWrapper _friend;
         private IEventAggregator _eventAggregator;
-
-        public FriendDetailViewModel(IFriendDataService dataService, 
+        private bool _hasChanges;
+        public FriendDetailViewModel(IFriendRepository repository, 
             IEventAggregator eventAggregator)
         {
-            _dataService = dataService;
+            _repository = repository;
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>()
-                .Subscribe(OnOpenFriendDetailView);
+           
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
-        public FriendWapper Friend
+        public FriendWrapper Friend
         {
             get { return _friend; }
             private set
@@ -39,17 +33,53 @@ namespace FriendOrganizer.UI.ViewModel
             }
         }
 
+        public bool HasChanges
+        {
+            get { return _hasChanges; }
+            set
+            {
+                if (_hasChanges != value)
+                {
+                    _hasChanges = value;
+                    OnPropertyChanged();
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+
+            }
+        }
+
+        public ICommand SaveCommand { get; }
+        private async void OnSaveExecute()
+        {
+            await _repository.SaveAsync();
+            HasChanges = _repository.HasChanges();
+            _eventAggregator.GetEvent<AfterFriendEvent>().Publish(
+                new AfterFriendSaveEventArgs
+                {
+                    Id = Friend.Id,
+                    DisplayMember = $"{Friend.FirstName}{Friend.LastName}"
+                });
+
+        }
+
+        private bool OnSaveCanExecute()
+        {
+            return Friend != null && !Friend.HasErrors && HasChanges;
+        }
+
         public async Task LoadAsync(int friendId)
         {
-            var friend = await _dataService.GetByIdAsync(friendId);
-
-            Friend = new FriendWapper(friend);
+            var friend = await _repository.GetByIdAsync(friendId);
+            Friend = new FriendWrapper(friend);
             Friend.PropertyChanged += (s, e) =>
             {
+                if (!HasChanges)
+                {
+                    HasChanges = _repository.HasChanges();
+                }
                 if (e.PropertyName==nameof(Friend.HasErrors))
                 {
                     ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
-
                 }
             };
 
@@ -57,29 +87,11 @@ namespace FriendOrganizer.UI.ViewModel
 
         }
 
-        public ICommand SaveCommand { get; }
+       
 
-        private async void OnSaveExecute()
-        {
-            await _dataService.SaveAsync(Friend.Model);
-            _eventAggregator.GetEvent<AfterFriendEvent>().Publish(
-                new AfterFriendSaveEventArgs
-                {
-                    Id = Friend.Id,
-                    DisplayMember = $"{Friend.FirstName}{Friend.LastName}"
-                });
-                
-        }
-
-        private bool OnSaveCanExecute()
-        {
-            return Friend != null && !Friend.HasErrors;
-        }
+        
          
-        private async void OnOpenFriendDetailView(int friendId)
-        {
-            await LoadAsync(friendId);
-        }
+       
 
        
 

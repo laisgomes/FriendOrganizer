@@ -2,12 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
-namespace FriendOrganizer.UI.Wapper
+namespace FriendOrganizer.UI.Wrapper
 {
-    public class ModelWapper<T> : NotifyDataErrorInfoBase
+    public class ModelWrapper<T> : NotifyDataErrorInfoBase
     {
         public T Model { get; }
-        public ModelWapper(T model)
+        public ModelWrapper(T model)
         {
             Model = model;
         }

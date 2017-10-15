@@ -21,7 +21,7 @@ namespace FriendOrganizer.UI.Wrapper
             set
             {
                 SetValue(value);
-              
+
             }
         }
 
@@ -39,11 +39,12 @@ namespace FriendOrganizer.UI.Wrapper
             set { SetValue(value); }
         }
 
-        /*private void ValidadeProperty(string propertyName)
+        public int? FavoriteLanguageId
         {
-            ClearErrors(propertyName);
-            
-        }*/
+            get { return GetValue<int?>(); }
+            set { SetValue(value); }
+
+        }
 
         protected override IEnumerable<string> ValidateProperty(string propertyName)
         {

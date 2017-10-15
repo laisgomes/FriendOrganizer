@@ -4,8 +4,8 @@ namespace FriendOrganizer.Model
 {
     public class Friend
     {
-        
-        public int Id  { get; set; }
+
+        public int Id { get; set; }
         [Required]
         [StringLength(50)]
         public string FirstName { get; set; }
@@ -14,5 +14,9 @@ namespace FriendOrganizer.Model
         [StringLength(50)]
         [EmailAddress]
         public string Email { get; set; }
+
+        public int? FavoriteLanguageId { get; set; }
+
+        public ProgrammingLanguage FavoriteLanguage { get; set; }
     }
 }

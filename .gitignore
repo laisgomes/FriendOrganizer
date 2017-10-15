@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/FriendOrganizer.DataAccess/Migrations/201710112030239_InitialCreate.cs
+/FriendOrganizer.DataAccess/Migrations/201710112030239_InitialCreate.Designer.cs
+/FriendOrganizer.DataAccess/Migrations/201710112030239_InitialCreate.resx
